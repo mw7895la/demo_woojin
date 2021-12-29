@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';  // 리액트 사용을 위해 Import
+import ReactDOM from 'react-dom'; // 리액트의 DOM사용을 위함
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
