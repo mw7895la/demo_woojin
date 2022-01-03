@@ -4,6 +4,7 @@ package com.example.demo_woojin.controller;
 import com.example.demo_woojin.dto.ResponseDTO;
 import com.example.demo_woojin.dto.UserDTO;
 import com.example.demo_woojin.model.UserEntity;
+import com.example.demo_woojin.security.TokenProvider;
 import com.example.demo_woojin.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
@@ -52,9 +56,13 @@ public class UserController {
         UserEntity user = userService.getByCredentials(userDTO.getEmail(), userDTO.getPassword());
 
         if(user != null){
+            //토큰 생성
+            final String token = tokenProvider.create(user);
+
             final UserDTO responseUserDTO = UserDTO.builder()
                     .email(user.getEmail())
                     .id(user.getId())
+                    .token(token)
                     .build();
             //ResponseEntity  HttpHeader 와  HttpBody를 포함하는 클래스
             return ResponseEntity.ok().body(responseUserDTO);
@@ -65,6 +73,7 @@ public class UserController {
             return ResponseEntity.badRequest()
                     .body(responseDTO);
         }
+
     }
 
 }
