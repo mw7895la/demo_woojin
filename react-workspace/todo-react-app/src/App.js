@@ -2,9 +2,10 @@ import React from 'react';
 //import logo from './logo.svg';
 import Todo from './Todo';
 import AddTodo from "./AddTodo.js";
-import {Container, List, Paper} from "@material-ui/core";
+//import {Container, List, Paper} from "@material-ui/core";
 import './App.css';
-import { call } from "./service/ApiService";
+import { Paper,List,Container,Grid,Button,AppBar,Toolbar,Typography,} from "@material-ui/core";
+import { call, signout } from "./service/ApiService";
 
 
 /*
@@ -44,6 +45,8 @@ class App extends React.Component{
       items: [
        
       ],
+      // <1> 로딩중 이라는 상태를 표현할 변수, 생성자에 상태 변수를 추가한다.
+      loading: true,
     };
 
   }
@@ -53,8 +56,9 @@ class App extends React.Component{
 
   //componentDidMount 추가
   componentDidMount(){
+    /*<2> componentDidMount에서 Todo 리스트를 가져오는 GET 요청이 성공적으로 리턴하는 경우 Loading을 false로 고친다 */
     call("/todo", "GET", null).then((response) =>
-        this.setState({ items: response.data})
+        this.setState({ items: response.data, loading:false})
     );
   }
 
@@ -137,9 +141,54 @@ class App extends React.Component{
       </Paper>
     );
 
+    // NavigationBar 추가
+    var navigationBar = (
+        <AppBar position="static">
+          <Toolbar>
+            <Grid justify="space-between" container>
+              <Grid item>
+                <Typography variant="h6">오늘의 할일</Typography>
+              </Grid>
+              <Grid>
+                <Button color="inherit" onClick={signout}>
+                  로.그.아.웃
+                </Button>
+              </Grid>
+            </Grid>
+          </Toolbar>
+
+        </AppBar>
+    );
+
+    /*로딩중이 아닐때 렌더링할 부분 */
+    var todoListPage = (
+        <div>
+          {navigationBar} {/*내비게이션 바 렌더링*/}
+          <Container maxWidth="md">
+            <AddTodo add={this.add}/>
+            <div className="todoList">{todoItems}</div>
+          </Container>
+        </div>
+    );
+
+    /*로딩중일때 렌더링할 부분*/
+    var loadingPage = <h1>로딩중 ... ...</h1>;
+
+    var content = loadingPage;
+
+    if(!this.state.loading){
+      //로딩중이 아니라면 무조건 여기 실행됨.
+      content = todoListPage;
+    }
+    //선택한 content 렌더링
+    return <div className="App">{content}</div>
+
+
     //195p (2) 함수 연결
+    //Props로 넘겨주기 !!
     return (
       <div className="App">
+        {navigationBar} {/*네비게이션바 렌더링*/}
         <Container maxWidth="md">
           <AddTodo add={this.add}/>
           <div className="TodoList">{todoItems}</div>

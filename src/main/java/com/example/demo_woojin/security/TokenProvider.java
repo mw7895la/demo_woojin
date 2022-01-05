@@ -3,11 +3,11 @@ package com.example.demo_woojin.security;
 import com.example.demo_woojin.model.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -17,8 +17,10 @@ import java.util.Date;
 @Service
 public class TokenProvider {
     //이 클래스가 하는 일은 사용자 정보를 받아 JWT를 생성하는 일.
-    private static final String SECRET_KEY = "#SDRTG#$%^ERG#$%GDF#$*&Dfg756DFg";
-    private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    private static final String SECRET_KEY = "Q4NSl604sgyHJj1qwEkR3ycUeR4uUAt7WJraD7EN3O9DVM4yyYuHxMEbSF4XXyYJkal13eqgB0F7Bq4H";
+    //private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    byte[] keyBytes = SECRET_KEY.getBytes();
+    Key key = Keys.hmacShaKeyFor(keyBytes);
     // SECRET_KEY가 32byte 이하라면 compile단계에서 error 발생
 
 
@@ -28,7 +30,7 @@ public class TokenProvider {
 
         return Jwts.builder()
                 // header에 들어갈 내용 및 서명을 하기위한 SECRET_KEY
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS512)
                 // Payload에 들어갈 내용
                 .setSubject(userEntity.getId()) //sub
                 .setIssuer("demo_woojin")  //iss

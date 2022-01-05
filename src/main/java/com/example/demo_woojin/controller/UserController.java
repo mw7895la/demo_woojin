@@ -9,6 +9,8 @@ import com.example.demo_woojin.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,12 +30,15 @@ public class UserController {
     @Autowired
     private TokenProvider tokenProvider;
 
+    //Bean으로 작성
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
         try{
             //요청을 이용해서 저장할 사용자 만들기
             UserEntity user = UserEntity.builder().email(userDTO.getEmail()).username(userDTO.getUsername())
-                    .password(userDTO.getPassword()).build();
+                    .password(passwordEncoder.encode(userDTO.getPassword())).build();
 
             //Service를 이용하여 Repository에 사용자 저장
             UserEntity registeredUser = userService.create(user);
@@ -53,7 +58,7 @@ public class UserController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticate(@RequestBody UserDTO userDTO){
-        UserEntity user = userService.getByCredentials(userDTO.getEmail(), userDTO.getPassword());
+        UserEntity user = userService.getByCredentials(userDTO.getEmail(), userDTO.getPassword(),passwordEncoder);
 
         if(user != null){
             //토큰 생성
